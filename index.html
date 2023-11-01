@@ -1,40 +1,1293 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
 
-		<title>reveal.js</title>
+    <title>Python Packaging 101 @ IGM Dev Club</title>
 
-		<link rel="stylesheet" href="dist/reset.css">
-		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css">
+    <link rel="stylesheet" href="dist/reset.css" />
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/black.css" />
 
-		<!-- Theme used for syntax highlighted code -->
-		<link rel="stylesheet" href="plugin/highlight/monokai.css">
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
-		</div>
+    <!-- Theme used for syntax highlighted code -->
+    <link rel="stylesheet" href="plugin/highlight/monokai.css" />
 
-		<script src="dist/reveal.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/markdown/markdown.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
-		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
-			Reveal.initialize({
-				hash: true,
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section
+          data-background-image="images/boxed_snakes.jpg"
+          data-background-size="contain"
+          data-background-color="black"
+        >
+          <div
+            id="title"
+            style="
+              border-radius: 15px;
+              background: rgba(100, 100, 100, 0.8);
+              padding: 20px;
+            "
+          >
+            <div class="title-text-box">
+              <h3 class="white-text bold">Python Packaging 101</h3>
+              <p class="white-text bold">James Stevenson</p>
+              <p class="white-text bold"><s>2023-10-18</s> 2023-11-01</p>
+            </div>
+          </div>
+        </section>
+        <section>
+          <section
+            data-background-image=""
+            data-background-size="contain"
+            data-background-color="black"
+          >
+            <div
+              id="title"
+              style="
+                border-radius: 15px;
+                background: rgba(100, 100, 100, 0.8);
+                padding: 20px;
+              "
+            >
+              <div class="title-text-box">
+                <h3 class="white-text bold">Front matter</h3>
+              </div>
+            </div>
+          </section>
+          <section>
+            <h3>What we're covering</h3>
+            <ul>
+              <li>What happens when you install a Python package with pip</li>
+              <li>How to make an installable Python package</li>
+            </ul>
+          </section>
+          <section>
+            <h3>What we aren't covering</h3>
+            <ul>
+              <li>Conda (gross)</li>
+              <li>apt or yum or other system-specific tools</li>
+              <li>Basically anything outside of pip</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Motivation</h3>
+            <ul>
+              <li>Sharing methods</li>
+              <li>Reusing work</li>
+              <li>Understanding what is happening here</li>
+            </ul>
+          </section>
+          <section>
+            <h3>References</h3>
+            <p>PyOpenSci packaging guide:</p>
+            <a
+              href="https://www.pyopensci.org/python-package-guide/package-structure-code/intro.html"
+              >https://www.pyopensci.org/python-package-guide/package-structure-code/intro.html</a
+            >
+            <p>Scientific Python development guide:</p>
+            <a href="https://learn.scientific-python.org/development/"
+              >https://learn.scientific-python.org/development</a
+            >
+            <p>PyPA release tutorial:</p>
+            <a
+              href="https://packaging.python.org/en/latest/tutorials/packaging-projects/"
+              >https://packaging.python.org/en/latest/tutorials/packaging-projects/</a
+            >
+          </section>
+        </section>
+        <section>
+          <section>
+            <img src="images/matrix_animation.gif" />
+            <h3>What happens when you install a package</h3>
+          </section>
+          <section>
+            <pre><code data-trim data-noescape class="shell">
+              Collecting gene-normalizer[dev,etl,pg]
+              Obtaining dependency information for gene-normalizer[dev,etl,pg] from https://files.pythonhosted.org/packages/cc/a5/907e8e277dcba07384ddc327647e4b5b8a0b14deb71f2828ef779fa606a5/gene_normalizer-0.2.10-py3-none-any.whl.metadata
+              Using cached gene_normalizer-0.2.10-py3-none-any.whl.metadata (9.1 kB)
+            Collecting boto3 (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for boto3 from https://files.pythonhosted.org/packages/02/e0/fcc91d6641936ecdd66dba6bbc06702d84e582c744bac4f52c34be556dcb/boto3-1.28.74-py3-none-any.whl.metadata
+              Downloading boto3-1.28.74-py3-none-any.whl.metadata (6.7 kB)
+            Collecting click (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for click from https://files.pythonhosted.org/packages/00/2e/d53fa4befbf2cfa713304affc7ca780ce4fc1fd8710527771b58311a3229/click-8.1.7-py3-none-any.whl.metadata
+              Using cached click-8.1.7-py3-none-any.whl.metadata (3.0 kB)
+            Collecting fastapi (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for fastapi from https://files.pythonhosted.org/packages/f3/4f/0ce34195b63240b6693086496c9bab4ef23999112184399a3e88854c7674/fastapi-0.104.1-py3-none-any.whl.metadata
+              Downloading fastapi-0.104.1-py3-none-any.whl.metadata (24 kB)
+            Collecting ga4gh.vrs>=0.9.0.dev0 (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for ga4gh.vrs>=0.9.0.dev0 from https://files.pythonhosted.org/packages/02/22/1e1db7b20f026fec8c4ba7cae58e1f6d57d0f6947a47a39b7ae7303e60cc/ga4gh.vrs-2.0.0a1-py2.py3-none-any.whl.metadata
+              Using cached ga4gh.vrs-2.0.0a1-py2.py3-none-any.whl.metadata (8.7 kB)
+            Collecting ga4gh.vrsatile.pydantic>=0.1.0.dev7 (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for ga4gh.vrsatile.pydantic>=0.1.0.dev7 from https://files.pythonhosted.org/packages/64/1d/a5d4574672d4dddbb9bb233897f1abede6e533b517af1b7fb6cdaec5d8d0/ga4gh.vrsatile.pydantic-0.2.0-py3-none-any.whl.metadata
+              Using cached ga4gh.vrsatile.pydantic-0.2.0-py3-none-any.whl.metadata (3.0 kB)
+            Collecting pydantic (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for pydantic from https://files.pythonhosted.org/packages/73/66/0a72c9fcde42e5650c8d8d5c5c1873b9a3893018020c77ca8eb62708b923/pydantic-2.4.2-py3-none-any.whl.metadata
+              Using cached pydantic-2.4.2-py3-none-any.whl.metadata (158 kB)
+            Collecting uvicorn (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for uvicorn from https://files.pythonhosted.org/packages/79/96/b0882a1c3f7ef3dd86879e041212ae5b62b4bd352320889231cc735a8e8f/uvicorn-0.23.2-py3-none-any.whl.metadata
+              Using cached uvicorn-0.23.2-py3-none-any.whl.metadata (6.2 kB)
+            Collecting flake8 (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for flake8 from https://files.pythonhosted.org/packages/b0/24/bbf7175ffc47cb3d3e1eb523ddb23272968359dfcf2e1294707a2bf12fc4/flake8-6.1.0-py2.py3-none-any.whl.metadata
+              Using cached flake8-6.1.0-py2.py3-none-any.whl.metadata (3.8 kB)
+            Collecting flake8-docstrings (from gene-normalizer[dev,etl,pg])
+              Using cached flake8_docstrings-1.7.0-py2.py3-none-any.whl (5.0 kB)
+            Collecting ipykernel (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for ipykernel from https://files.pythonhosted.org/packages/c8/7d/2df9b38e2310e36a1b4a92bfe85f53ce24c638f9b7d9bd992bded11ce604/ipykernel-6.26.0-py3-none-any.whl.metadata
+              Using cached ipykernel-6.26.0-py3-none-any.whl.metadata (6.3 kB)
+            Collecting pre-commit (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for pre-commit from https://files.pythonhosted.org/packages/6c/75/526915fedf462e05eeb1c75ceaf7e3f9cde7b5ce6f62740fe5f7f19a0050/pre_commit-3.5.0-py2.py3-none-any.whl.metadata
+              Using cached pre_commit-3.5.0-py2.py3-none-any.whl.metadata (1.3 kB)
+            Collecting biocommons.seqrepo (from gene-normalizer[dev,etl,pg])
+              Using cached biocommons.seqrepo-0.6.5-py2.py3-none-any.whl (39 kB)
+            Collecting gffutils (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for gffutils from https://files.pythonhosted.org/packages/b2/0a/eddd2f6667198100adb8fa6f983db66022e3c375c40d19795a3de05df986/gffutils-0.12-py3-none-any.whl.metadata
+              Using cached gffutils-0.12-py3-none-any.whl.metadata (1.5 kB)
+            Collecting psycopg[binary] (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for psycopg[binary] from https://files.pythonhosted.org/packages/d0/9e/99d99c60c1aa6d2107403d3766d8538c13627c62b240f00ce13ac8962d4e/psycopg-3.1.12-py3-none-any.whl.metadata
+              Using cached psycopg-3.1.12-py3-none-any.whl.metadata (3.6 kB)
+            Collecting bioutils (from ga4gh.vrs>=0.9.0.dev0->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for bioutils from https://files.pythonhosted.org/packages/24/b0/a37ca593899105cb131a0e0db23d6fd52a7c044a027d8c99df6422124fde/bioutils-0.5.8.post1-py3-none-any.whl.metadata
+              Using cached bioutils-0.5.8.post1-py3-none-any.whl.metadata (16 kB)
+            Collecting canonicaljson (from ga4gh.vrs>=0.9.0.dev0->gene-normalizer[dev,etl,pg])
+              Using cached canonicaljson-2.0.0-py3-none-any.whl (7.9 kB)
+            Collecting coloredlogs (from ga4gh.vrs>=0.9.0.dev0->gene-normalizer[dev,etl,pg])
+              Using cached coloredlogs-15.0.1-py2.py3-none-any.whl (46 kB)
+            Collecting jsonschema>=4.17.3 (from ga4gh.vrs>=0.9.0.dev0->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for jsonschema>=4.17.3 from https://files.pythonhosted.org/packages/ce/aa/d1bd0b5ec568a903cc3ebcb6b096ab65c1d971c8a01ca3bf3cf788c3c646/jsonschema-4.19.2-py3-none-any.whl.metadata
+              Downloading jsonschema-4.19.2-py3-none-any.whl.metadata (7.9 kB)
+            Collecting numpy (from ga4gh.vrs>=0.9.0.dev0->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for numpy from https://files.pythonhosted.org/packages/ad/00/adb57a4974931c97a9bbbc92fd2cc998aa47569fcd7fb65ded4b81b72455/numpy-1.26.1-cp312-cp312-macosx_10_9_x86_64.whl.metadata
+              Using cached numpy-1.26.1-cp312-cp312-macosx_10_9_x86_64.whl.metadata (61 kB)
+            Collecting pyyaml (from ga4gh.vrs>=0.9.0.dev0->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for pyyaml from https://files.pythonhosted.org/packages/bc/06/1b305bf6aa704343be85444c9d011f626c763abb40c0edc1cad13bfd7f86/PyYAML-6.0.1-cp312-cp312-macosx_10_9_x86_64.whl.metadata
+              Using cached PyYAML-6.0.1-cp312-cp312-macosx_10_9_x86_64.whl.metadata (2.1 kB)
+            Collecting pydantic (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for pydantic from https://files.pythonhosted.org/packages/82/06/fafdc75e48b248eff364b4249af4bcc6952225e8f20e8205820afc66e88e/pydantic-2.3.0-py3-none-any.whl.metadata
+              Using cached pydantic-2.3.0-py3-none-any.whl.metadata (148 kB)
+            INFO: pip is looking at multiple versions of ga4gh-vrsatile-pydantic to determine which version is compatible with other requirements. This could take a while.
+            Collecting ga4gh.vrsatile.pydantic>=0.1.0.dev7 (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for ga4gh.vrsatile.pydantic>=0.1.0.dev7 from https://files.pythonhosted.org/packages/32/3f/a040ac634bda4e2fe7bd3909018b606d7672ebf899a8490abdc6240eba07/ga4gh.vrsatile.pydantic-0.1.0.dev9-py3-none-any.whl.metadata
+              Using cached ga4gh.vrsatile.pydantic-0.1.0.dev9-py3-none-any.whl.metadata (3.2 kB)
+              Using cached ga4gh.vrsatile.pydantic-0.1.0.dev8-py3-none-any.whl (12 kB)
+            Collecting annotated-types>=0.4.0 (from pydantic->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for annotated-types>=0.4.0 from https://files.pythonhosted.org/packages/28/78/d31230046e58c207284c6b2c4e8d96e6d3cb4e52354721b944d3e1ee4aa5/annotated_types-0.6.0-py3-none-any.whl.metadata
+              Using cached annotated_types-0.6.0-py3-none-any.whl.metadata (12 kB)
+            Collecting pydantic-core==2.6.3 (from pydantic->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for pydantic-core==2.6.3 from https://files.pythonhosted.org/packages/0b/06/e34be09a8faa1f3cb7b84c504fa958fbae22abad45705cf4ec615d3c81cf/pydantic_core-2.6.3-cp312-cp312-macosx_10_7_x86_64.whl.metadata
+              Using cached pydantic_core-2.6.3-cp312-cp312-macosx_10_7_x86_64.whl.metadata (6.5 kB)
+            Collecting typing-extensions>=4.6.1 (from pydantic->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for typing-extensions>=4.6.1 from https://files.pythonhosted.org/packages/24/21/7d397a4b7934ff4028987914ac1044d3b7d52712f30e2ac7a2ae5bc86dd0/typing_extensions-4.8.0-py3-none-any.whl.metadata
+              Using cached typing_extensions-4.8.0-py3-none-any.whl.metadata (3.0 kB)
+            Collecting ipython (from biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for ipython from https://files.pythonhosted.org/packages/20/45/18f0dc2cbc3ee6680a004f620fb1400c6511ded0a76a2dd241813786ce73/ipython-8.17.2-py3-none-any.whl.metadata
+              Downloading ipython-8.17.2-py3-none-any.whl.metadata (6.0 kB)
+            Collecting pysam (from biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for pysam from https://files.pythonhosted.org/packages/c5/0d/986ec7927390da172a0c26dca6e4c91ffaadcef866072d71bbd96b7de02f/pysam-0.22.0-cp312-cp312-macosx_10_9_x86_64.whl.metadata
+              Using cached pysam-0.22.0-cp312-cp312-macosx_10_9_x86_64.whl.metadata (1.5 kB)
+            Collecting requests (from biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for requests from https://files.pythonhosted.org/packages/70/8e/0e2d847013cb52cd35b38c009bb167a1a26b2ce6cd6965bf26b47bc0bf44/requests-2.31.0-py3-none-any.whl.metadata
+              Using cached requests-2.31.0-py3-none-any.whl.metadata (4.6 kB)
+            Collecting requests-html (from biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached requests_html-0.10.0-py3-none-any.whl (13 kB)
+            Collecting six (from biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached six-1.16.0-py2.py3-none-any.whl (11 kB)
+            Collecting tqdm (from biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for tqdm from https://files.pythonhosted.org/packages/00/e5/f12a80907d0884e6dff9c16d0c0114d81b8cd07dc3ae54c5e962cc83037e/tqdm-4.66.1-py3-none-any.whl.metadata
+              Using cached tqdm-4.66.1-py3-none-any.whl.metadata (57 kB)
+            Collecting yoyo-migrations (from biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached yoyo_migrations-8.2.0-py3-none-any.whl (48 kB)
+            Collecting botocore<1.32.0,>=1.31.74 (from boto3->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for botocore<1.32.0,>=1.31.74 from https://files.pythonhosted.org/packages/27/3f/310eb7e4f1e8668e4d660e04b0ee1fac738eb2bb6e07a779dd7802d70aa3/botocore-1.31.74-py3-none-any.whl.metadata
+              Downloading botocore-1.31.74-py3-none-any.whl.metadata (6.1 kB)
+            Collecting jmespath<2.0.0,>=0.7.1 (from boto3->gene-normalizer[dev,etl,pg])
+              Using cached jmespath-1.0.1-py3-none-any.whl (20 kB)
+            Collecting s3transfer<0.8.0,>=0.7.0 (from boto3->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for s3transfer<0.8.0,>=0.7.0 from https://files.pythonhosted.org/packages/5a/4b/fec9ce18f8874a96c5061422625ba86c3ee1e6587ccd92ff9f5bf7bd91b2/s3transfer-0.7.0-py3-none-any.whl.metadata
+              Using cached s3transfer-0.7.0-py3-none-any.whl.metadata (1.8 kB)
+            Collecting anyio<4.0.0,>=3.7.1 (from fastapi->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for anyio<4.0.0,>=3.7.1 from https://files.pythonhosted.org/packages/19/24/44299477fe7dcc9cb58d0a57d5a7588d6af2ff403fdd2d47a246c91a3246/anyio-3.7.1-py3-none-any.whl.metadata
+              Using cached anyio-3.7.1-py3-none-any.whl.metadata (4.7 kB)
+            Collecting starlette<0.28.0,>=0.27.0 (from fastapi->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for starlette<0.28.0,>=0.27.0 from https://files.pythonhosted.org/packages/58/f8/e2cca22387965584a409795913b774235752be4176d276714e15e1a58884/starlette-0.27.0-py3-none-any.whl.metadata
+              Using cached starlette-0.27.0-py3-none-any.whl.metadata (5.8 kB)
+            Collecting mccabe<0.8.0,>=0.7.0 (from flake8->gene-normalizer[dev,etl,pg])
+              Using cached mccabe-0.7.0-py2.py3-none-any.whl (7.3 kB)
+            Collecting pycodestyle<2.12.0,>=2.11.0 (from flake8->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for pycodestyle<2.12.0,>=2.11.0 from https://files.pythonhosted.org/packages/b1/90/a998c550d0ddd07e38605bb5c455d00fcc177a800ff9cc3dafdcb3dd7b56/pycodestyle-2.11.1-py2.py3-none-any.whl.metadata
+              Using cached pycodestyle-2.11.1-py2.py3-none-any.whl.metadata (4.5 kB)
+            Collecting pyflakes<3.2.0,>=3.1.0 (from flake8->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for pyflakes<3.2.0,>=3.1.0 from https://files.pythonhosted.org/packages/00/e9/1e1fd7fae559bfd07704991e9a59dd1349b72423c904256c073ce88a9940/pyflakes-3.1.0-py2.py3-none-any.whl.metadata
+              Using cached pyflakes-3.1.0-py2.py3-none-any.whl.metadata (3.5 kB)
+            Collecting pydocstyle>=2.1 (from flake8-docstrings->gene-normalizer[dev,etl,pg])
+              Using cached pydocstyle-6.3.0-py3-none-any.whl (38 kB)
+            Collecting pyfaidx>=0.5.5.2 (from gffutils->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for pyfaidx>=0.5.5.2 from https://files.pythonhosted.org/packages/83/bf/269e9b3a18dfda8a22a2d76decf98725f28ff930bd449f87a194625ba913/pyfaidx-0.7.2.2-py3-none-any.whl.metadata
+              Using cached pyfaidx-0.7.2.2-py3-none-any.whl.metadata (25 kB)
+            Collecting argh>=0.26.2 (from gffutils->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for argh>=0.26.2 from https://files.pythonhosted.org/packages/af/b8/9e8cbf25cd873f0465b083891ee8f6af52f681385755dbbe67ee8bb30309/argh-0.30.3-py3-none-any.whl.metadata
+              Downloading argh-0.30.3-py3-none-any.whl.metadata (9.3 kB)
+            Collecting argcomplete>=1.9.4 (from gffutils->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for argcomplete>=1.9.4 from https://files.pythonhosted.org/packages/1e/05/223116a4a5905d6b26bff334ffc7b74474fafe23fcb10532caf0ef86ca69/argcomplete-3.1.2-py3-none-any.whl.metadata
+              Using cached argcomplete-3.1.2-py3-none-any.whl.metadata (16 kB)
+            Collecting simplejson (from gffutils->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for simplejson from https://files.pythonhosted.org/packages/77/8e/8ea7d30d181ef54c0db5815d4759053e7cbafd1c927d8ca56bf813c2b72c/simplejson-3.19.2-cp312-cp312-macosx_10_9_x86_64.whl.metadata
+              Using cached simplejson-3.19.2-cp312-cp312-macosx_10_9_x86_64.whl.metadata (3.1 kB)
+            Collecting appnope (from ipykernel->gene-normalizer[dev,etl,pg])
+              Using cached appnope-0.1.3-py2.py3-none-any.whl (4.4 kB)
+            Collecting comm>=0.1.1 (from ipykernel->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for comm>=0.1.1 from https://files.pythonhosted.org/packages/fe/47/0133ac1b7dc476ed77710715e98077119b3d9bae56b13f6f9055e7da1c53/comm-0.1.4-py3-none-any.whl.metadata
+              Using cached comm-0.1.4-py3-none-any.whl.metadata (4.2 kB)
+            Collecting debugpy>=1.6.5 (from ipykernel->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for debugpy>=1.6.5 from https://files.pythonhosted.org/packages/64/59/b9c5dbe60c3a3e4e4bb12b1968aa75e98b99ff8b65273a5e7de75cceef75/debugpy-1.8.0-py2.py3-none-any.whl.metadata
+              Using cached debugpy-1.8.0-py2.py3-none-any.whl.metadata (1.1 kB)
+            Collecting jupyter-client>=6.1.12 (from ipykernel->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for jupyter-client>=6.1.12 from https://files.pythonhosted.org/packages/ab/1f/d93fd1d2bf75233134a4aa1f56186b3c1975932fbfb58322e8de2906ea3d/jupyter_client-8.5.0-py3-none-any.whl.metadata
+              Using cached jupyter_client-8.5.0-py3-none-any.whl.metadata (8.3 kB)
+            Collecting jupyter-core!=5.0.*,>=4.12 (from ipykernel->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for jupyter-core!=5.0.*,>=4.12 from https://files.pythonhosted.org/packages/ab/ea/af6508f71d2bcbf4db538940120cc3d3f10287f62105e756bd315aa345b5/jupyter_core-5.5.0-py3-none-any.whl.metadata
+              Downloading jupyter_core-5.5.0-py3-none-any.whl.metadata (3.4 kB)
+            Collecting matplotlib-inline>=0.1 (from ipykernel->gene-normalizer[dev,etl,pg])
+              Using cached matplotlib_inline-0.1.6-py3-none-any.whl (9.4 kB)
+            Collecting nest-asyncio (from ipykernel->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for nest-asyncio from https://files.pythonhosted.org/packages/ab/d3/48c01d1944e0ee49fdc005bf518a68b0582d3bd201e5401664890b62a647/nest_asyncio-1.5.8-py3-none-any.whl.metadata
+              Using cached nest_asyncio-1.5.8-py3-none-any.whl.metadata (2.8 kB)
+            Collecting packaging (from ipykernel->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for packaging from https://files.pythonhosted.org/packages/ec/1a/610693ac4ee14fcdf2d9bf3c493370e4f2ef7ae2e19217d7a237ff42367d/packaging-23.2-py3-none-any.whl.metadata
+              Using cached packaging-23.2-py3-none-any.whl.metadata (3.2 kB)
+            Collecting psutil (from ipykernel->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for psutil from https://files.pythonhosted.org/packages/f8/36/35b12441ba1bc6684c9215191f955415196ca57ca85d88e313bec7f2cf8e/psutil-5.9.6-cp36-abi3-macosx_10_9_x86_64.whl.metadata
+              Using cached psutil-5.9.6-cp36-abi3-macosx_10_9_x86_64.whl.metadata (21 kB)
+            Collecting pyzmq>=20 (from ipykernel->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for pyzmq>=20 from https://files.pythonhosted.org/packages/d6/2a/812e25ea9fe6eeb18aed211e1dcd2fb6836fd79a848f4ad8cee8e11f839c/pyzmq-25.1.1-cp312-cp312-macosx_10_15_universal2.whl.metadata
+              Using cached pyzmq-25.1.1-cp312-cp312-macosx_10_15_universal2.whl.metadata (4.9 kB)
+            Collecting tornado>=6.1 (from ipykernel->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for tornado>=6.1 from https://files.pythonhosted.org/packages/13/17/da173efad287dfe1f9dc93c9d6b2a5f9c4fed8ecb23966c9160014cfdd6e/tornado-6.3.3-cp38-abi3-macosx_10_9_x86_64.whl.metadata
+              Using cached tornado-6.3.3-cp38-abi3-macosx_10_9_x86_64.whl.metadata (2.5 kB)
+            Collecting traitlets>=5.4.0 (from ipykernel->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for traitlets>=5.4.0 from https://files.pythonhosted.org/packages/ed/fd/cfc0d27ca11f3dd12b2a90d06875d8bfb532ef40ce67be4066d10807f4aa/traitlets-5.13.0-py3-none-any.whl.metadata
+              Downloading traitlets-5.13.0-py3-none-any.whl.metadata (10 kB)
+            Collecting cfgv>=2.0.0 (from pre-commit->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for cfgv>=2.0.0 from https://files.pythonhosted.org/packages/c5/55/51844dd50c4fc7a33b653bfaba4c2456f06955289ca770a5dbd5fd267374/cfgv-3.4.0-py2.py3-none-any.whl.metadata
+              Using cached cfgv-3.4.0-py2.py3-none-any.whl.metadata (8.5 kB)
+            Collecting identify>=1.0.0 (from pre-commit->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for identify>=1.0.0 from https://files.pythonhosted.org/packages/46/02/2581c37256119d65e6f1f47b62dd51dd3136d6b207bb49a8885a0d45c41a/identify-2.5.31-py2.py3-none-any.whl.metadata
+              Downloading identify-2.5.31-py2.py3-none-any.whl.metadata (4.4 kB)
+            Collecting nodeenv>=0.11.1 (from pre-commit->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for nodeenv>=0.11.1 from https://files.pythonhosted.org/packages/1a/e6/6d2ead760a9ddb35e65740fd5a57e46aadd7b0c49861ab24f94812797a1c/nodeenv-1.8.0-py2.py3-none-any.whl.metadata
+              Using cached nodeenv-1.8.0-py2.py3-none-any.whl.metadata (21 kB)
+            Collecting virtualenv>=20.10.0 (from pre-commit->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for virtualenv>=20.10.0 from https://files.pythonhosted.org/packages/7f/19/1f0eddcb9acf00a95793ce83417f69e0fd106c192121360af499cd6fde39/virtualenv-20.24.6-py3-none-any.whl.metadata
+              Using cached virtualenv-20.24.6-py3-none-any.whl.metadata (4.5 kB)
+            Collecting psycopg-binary==3.1.12 (from psycopg[binary]->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for psycopg-binary==3.1.12 from https://files.pythonhosted.org/packages/ef/58/757b466bbf6f6440e745f47f8d1f10301895022a2895d862b8cc2c6f4b40/psycopg_binary-3.1.12-cp312-cp312-macosx_10_9_x86_64.whl.metadata
+              Using cached psycopg_binary-3.1.12-cp312-cp312-macosx_10_9_x86_64.whl.metadata (2.5 kB)
+            Collecting h11>=0.8 (from uvicorn->gene-normalizer[dev,etl,pg])
+              Using cached h11-0.14.0-py3-none-any.whl (58 kB)
+            Collecting idna>=2.8 (from anyio<4.0.0,>=3.7.1->fastapi->gene-normalizer[dev,etl,pg])
+              Using cached idna-3.4-py3-none-any.whl (61 kB)
+            Collecting sniffio>=1.1 (from anyio<4.0.0,>=3.7.1->fastapi->gene-normalizer[dev,etl,pg])
+              Using cached sniffio-1.3.0-py3-none-any.whl (10 kB)
+            Collecting attrs (from bioutils->ga4gh.vrs>=0.9.0.dev0->gene-normalizer[dev,etl,pg])
+              Using cached attrs-23.1.0-py3-none-any.whl (61 kB)
+            Collecting urllib3~=1.26 (from bioutils->ga4gh.vrs>=0.9.0.dev0->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for urllib3~=1.26 from https://files.pythonhosted.org/packages/b0/53/aa91e163dcfd1e5b82d8a890ecf13314e3e149c05270cc644581f77f17fd/urllib3-1.26.18-py2.py3-none-any.whl.metadata
+              Using cached urllib3-1.26.18-py2.py3-none-any.whl.metadata (48 kB)
+            Collecting python-dateutil<3.0.0,>=2.1 (from botocore<1.32.0,>=1.31.74->boto3->gene-normalizer[dev,etl,pg])
+              Using cached python_dateutil-2.8.2-py2.py3-none-any.whl (247 kB)
+            Collecting decorator (from ipython->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached decorator-5.1.1-py3-none-any.whl (9.1 kB)
+            Collecting jedi>=0.16 (from ipython->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for jedi>=0.16 from https://files.pythonhosted.org/packages/20/9f/bc63f0f0737ad7a60800bfd472a4836661adae21f9c2535f3957b1e54ceb/jedi-0.19.1-py2.py3-none-any.whl.metadata
+              Using cached jedi-0.19.1-py2.py3-none-any.whl.metadata (22 kB)
+            Collecting prompt-toolkit!=3.0.37,<3.1.0,>=3.0.30 (from ipython->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for prompt-toolkit!=3.0.37,<3.1.0,>=3.0.30 from https://files.pythonhosted.org/packages/a9/b4/ba77c84edf499877317225d7b7bc047a81f7c2eed9628eeb6bab0ac2e6c9/prompt_toolkit-3.0.39-py3-none-any.whl.metadata
+              Using cached prompt_toolkit-3.0.39-py3-none-any.whl.metadata (6.4 kB)
+            Collecting pygments>=2.4.0 (from ipython->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for pygments>=2.4.0 from https://files.pythonhosted.org/packages/43/88/29adf0b44ba6ac85045e63734ae0997d3c58d8b1a91c914d240828d0d73d/Pygments-2.16.1-py3-none-any.whl.metadata
+              Using cached Pygments-2.16.1-py3-none-any.whl.metadata (2.5 kB)
+            Collecting stack-data (from ipython->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for stack-data from https://files.pythonhosted.org/packages/f1/7b/ce1eafaf1a76852e2ec9b22edecf1daa58175c090266e9f6c64afcd81d91/stack_data-0.6.3-py3-none-any.whl.metadata
+              Using cached stack_data-0.6.3-py3-none-any.whl.metadata (18 kB)
+            Collecting pexpect>4.3 (from ipython->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached pexpect-4.8.0-py2.py3-none-any.whl (59 kB)
+            Collecting jsonschema-specifications>=2023.03.6 (from jsonschema>=4.17.3->ga4gh.vrs>=0.9.0.dev0->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for jsonschema-specifications>=2023.03.6 from https://files.pythonhosted.org/packages/1c/24/83349ac2189cc2435e84da3f69ba3c97314d3c0622628e55171c6798ed80/jsonschema_specifications-2023.7.1-py3-none-any.whl.metadata
+              Using cached jsonschema_specifications-2023.7.1-py3-none-any.whl.metadata (2.8 kB)
+            Collecting referencing>=0.28.4 (from jsonschema>=4.17.3->ga4gh.vrs>=0.9.0.dev0->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for referencing>=0.28.4 from https://files.pythonhosted.org/packages/be/8e/56d6f1e2d591f4d6cbcba446cac4a1b0dc4f584537e2071d9bcee8eeab6b/referencing-0.30.2-py3-none-any.whl.metadata
+              Using cached referencing-0.30.2-py3-none-any.whl.metadata (2.6 kB)
+            Collecting rpds-py>=0.7.1 (from jsonschema>=4.17.3->ga4gh.vrs>=0.9.0.dev0->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for rpds-py>=0.7.1 from https://files.pythonhosted.org/packages/8e/e6/6e4a9ff720df62f328e4dab0aa9ea226eb9dad5759c0d42d110afa2995e3/rpds_py-0.10.6-cp312-cp312-macosx_10_7_x86_64.whl.metadata
+              Using cached rpds_py-0.10.6-cp312-cp312-macosx_10_7_x86_64.whl.metadata (3.7 kB)
+            Collecting platformdirs>=2.5 (from jupyter-core!=5.0.*,>=4.12->ipykernel->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for platformdirs>=2.5 from https://files.pythonhosted.org/packages/56/29/3ec311dc18804409ecf0d2b09caa976f3ae6215559306b5b530004e11156/platformdirs-3.11.0-py3-none-any.whl.metadata
+              Using cached platformdirs-3.11.0-py3-none-any.whl.metadata (11 kB)
+            Collecting setuptools (from nodeenv>=0.11.1->pre-commit->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for setuptools from https://files.pythonhosted.org/packages/bb/26/7945080113158354380a12ce26873dd6c1ebd88d47f5bc24e2c5bb38c16a/setuptools-68.2.2-py3-none-any.whl.metadata
+              Using cached setuptools-68.2.2-py3-none-any.whl.metadata (6.3 kB)
+            Collecting snowballstemmer>=2.2.0 (from pydocstyle>=2.1->flake8-docstrings->gene-normalizer[dev,etl,pg])
+              Using cached snowballstemmer-2.2.0-py2.py3-none-any.whl (93 kB)
+            Collecting importlib-metadata (from pyfaidx>=0.5.5.2->gffutils->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for importlib-metadata from https://files.pythonhosted.org/packages/cc/37/db7ba97e676af155f5fcb1a35466f446eadc9104e25b83366e8088c9c926/importlib_metadata-6.8.0-py3-none-any.whl.metadata
+              Using cached importlib_metadata-6.8.0-py3-none-any.whl.metadata (5.1 kB)
+            Collecting distlib<1,>=0.3.7 (from virtualenv>=20.10.0->pre-commit->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for distlib<1,>=0.3.7 from https://files.pythonhosted.org/packages/43/a0/9ba967fdbd55293bacfc1507f58e316f740a3b231fc00e3d86dc39bc185a/distlib-0.3.7-py2.py3-none-any.whl.metadata
+              Using cached distlib-0.3.7-py2.py3-none-any.whl.metadata (5.1 kB)
+            Collecting filelock<4,>=3.12.2 (from virtualenv>=20.10.0->pre-commit->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for filelock<4,>=3.12.2 from https://files.pythonhosted.org/packages/81/54/84d42a0bee35edba99dee7b59a8d4970eccdd44b99fe728ed912106fc781/filelock-3.13.1-py3-none-any.whl.metadata
+              Downloading filelock-3.13.1-py3-none-any.whl.metadata (2.8 kB)
+            Collecting humanfriendly>=9.1 (from coloredlogs->ga4gh.vrs>=0.9.0.dev0->gene-normalizer[dev,etl,pg])
+              Using cached humanfriendly-10.0-py2.py3-none-any.whl (86 kB)
+            Collecting charset-normalizer<4,>=2 (from requests->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for charset-normalizer<4,>=2 from https://files.pythonhosted.org/packages/be/d0/a14afd69344d248d7e8ab495b44be6957a6fd3718ffeb6b48674f206e8fa/charset_normalizer-3.3.1-cp312-cp312-macosx_10_9_x86_64.whl.metadata
+              Using cached charset_normalizer-3.3.1-cp312-cp312-macosx_10_9_x86_64.whl.metadata (33 kB)
+            Collecting certifi>=2017.4.17 (from requests->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for certifi>=2017.4.17 from https://files.pythonhosted.org/packages/4c/dd/2234eab22353ffc7d94e8d13177aaa050113286e93e7b40eae01fbf7c3d9/certifi-2023.7.22-py3-none-any.whl.metadata
+              Using cached certifi-2023.7.22-py3-none-any.whl.metadata (2.2 kB)
+            Collecting pyquery (from requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached pyquery-2.0.0-py3-none-any.whl (22 kB)
+            Collecting fake-useragent (from requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for fake-useragent from https://files.pythonhosted.org/packages/56/56/f72e9ca4f9cfb966f489c2b8ea04c67fa8d0cfbb62b1651cb9d6aef110a6/fake_useragent-1.3.0-py3-none-any.whl.metadata
+              Using cached fake_useragent-1.3.0-py3-none-any.whl.metadata (13 kB)
+            Collecting parse (from requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for parse from https://files.pythonhosted.org/packages/9c/57/6c51ccd70de3ebcfb0bb5b0eea2ac0ab13c51ab55043a7243faef9eb58ef/parse-1.19.1-py2.py3-none-any.whl.metadata
+              Using cached parse-1.19.1-py2.py3-none-any.whl.metadata (20 kB)
+            Collecting bs4 (from requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached bs4-0.0.1-py3-none-any.whl
+            Collecting w3lib (from requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for w3lib from https://files.pythonhosted.org/packages/82/e2/dcf8573d7153194eb673347cea1f9bbdb2a8e61030740fb6f50e4234a00b/w3lib-2.1.2-py3-none-any.whl.metadata
+              Using cached w3lib-2.1.2-py3-none-any.whl.metadata (1.1 kB)
+            Collecting pyppeteer>=0.0.14 (from requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached pyppeteer-1.0.2-py3-none-any.whl (83 kB)
+            Collecting sqlparse (from yoyo-migrations->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached sqlparse-0.4.4-py3-none-any.whl (41 kB)
+            Collecting tabulate (from yoyo-migrations->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached tabulate-0.9.0-py3-none-any.whl (35 kB)
+            Collecting zipp>=0.5 (from importlib-metadata->pyfaidx>=0.5.5.2->gffutils->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for zipp>=0.5 from https://files.pythonhosted.org/packages/d9/66/48866fc6b158c81cc2bfecc04c480f105c6040e8b077bc54c634b4a67926/zipp-3.17.0-py3-none-any.whl.metadata
+              Using cached zipp-3.17.0-py3-none-any.whl.metadata (3.7 kB)
+            Collecting parso<0.9.0,>=0.8.3 (from jedi>=0.16->ipython->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached parso-0.8.3-py2.py3-none-any.whl (100 kB)
+            Collecting ptyprocess>=0.5 (from pexpect>4.3->ipython->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached ptyprocess-0.7.0-py2.py3-none-any.whl (13 kB)
+            Collecting wcwidth (from prompt-toolkit!=3.0.37,<3.1.0,>=3.0.30->ipython->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for wcwidth from https://files.pythonhosted.org/packages/19/0b/00728863778b14ececfc97e40850fd71529b6a1695907981cc3fdc085ba6/wcwidth-0.2.9-py2.py3-none-any.whl.metadata
+              Downloading wcwidth-0.2.9-py2.py3-none-any.whl.metadata (14 kB)
+            Collecting appdirs<2.0.0,>=1.4.3 (from pyppeteer>=0.0.14->requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
+            Collecting pyee<9.0.0,>=8.1.0 (from pyppeteer>=0.0.14->requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached pyee-8.2.2-py2.py3-none-any.whl (12 kB)
+            Collecting websockets<11.0,>=10.0 (from pyppeteer>=0.0.14->requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached websockets-10.4-cp312-cp312-macosx_13_0_x86_64.whl
+            Collecting beautifulsoup4 (from bs4->requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached beautifulsoup4-4.12.2-py3-none-any.whl (142 kB)
+            Collecting lxml>=2.1 (from pyquery->requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for lxml>=2.1 from https://files.pythonhosted.org/packages/c2/74/3a00052f9249b9a037a8c0cd0afac6e26cc21655ceb3d6b12221a171aeb7/lxml-4.9.3-cp312-cp312-macosx_11_0_universal2.whl.metadata
+              Using cached lxml-4.9.3-cp312-cp312-macosx_11_0_universal2.whl.metadata (3.8 kB)
+            Collecting cssselect>=1.2.0 (from pyquery->requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached cssselect-1.2.0-py2.py3-none-any.whl (18 kB)
+            Collecting executing>=1.2.0 (from stack-data->ipython->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for executing>=1.2.0 from https://files.pythonhosted.org/packages/80/03/6ea8b1b2a5ab40a7a60dc464d3daa7aa546e0a74d74a9f8ff551ea7905db/executing-2.0.1-py2.py3-none-any.whl.metadata
+              Downloading executing-2.0.1-py2.py3-none-any.whl.metadata (9.0 kB)
+            Collecting asttokens>=2.1.0 (from stack-data->ipython->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for asttokens>=2.1.0 from https://files.pythonhosted.org/packages/45/86/4736ac618d82a20d87d2f92ae19441ebc7ac9e7a581d7e58bbe79233b24a/asttokens-2.4.1-py2.py3-none-any.whl.metadata
+              Using cached asttokens-2.4.1-py2.py3-none-any.whl.metadata (5.2 kB)
+            Collecting pure-eval (from stack-data->ipython->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached pure_eval-0.2.2-py3-none-any.whl (11 kB)
+            Collecting soupsieve>1.2 (from beautifulsoup4->bs4->requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for soupsieve>1.2 from https://files.pythonhosted.org/packages/4c/f3/038b302fdfbe3be7da016777069f26ceefe11a681055ea1f7817546508e3/soupsieve-2.5-py3-none-any.whl.metadata
+              Using cached soupsieve-2.5-py3-none-any.whl.metadata (4.7 kB)
+            Using cached ga4gh.vrs-2.0.0a1-py2.py3-none-any.whl (47 kB)
+            Using cached pydantic-2.3.0-py3-none-any.whl (374 kB)
+            Using cached pydantic_core-2.6.3-cp312-cp312-macosx_10_7_x86_64.whl (1.7 MB)
+            Downloading boto3-1.28.74-py3-none-any.whl (135 kB)
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 135.8/135.8 kB 1.8 MB/s eta 0:00:00
+            Using cached click-8.1.7-py3-none-any.whl (97 kB)
+            Downloading fastapi-0.104.1-py3-none-any.whl (92 kB)
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 92.9/92.9 kB 1.4 MB/s eta 0:00:00
+            Using cached flake8-6.1.0-py2.py3-none-any.whl (58 kB)
+            Using cached gene_normalizer-0.2.10-py3-none-any.whl (62 kB)
+            Using cached gffutils-0.12-py3-none-any.whl (1.6 MB)
+            Using cached ipykernel-6.26.0-py3-none-any.whl (114 kB)
+            Using cached pre_commit-3.5.0-py2.py3-none-any.whl (203 kB)
+            Using cached psycopg_binary-3.1.12-cp312-cp312-macosx_10_9_x86_64.whl (3.1 MB)
+            Using cached uvicorn-0.23.2-py3-none-any.whl (59 kB)
+            Using cached annotated_types-0.6.0-py3-none-any.whl (12 kB)
+            Using cached anyio-3.7.1-py3-none-any.whl (80 kB)
+            Using cached argcomplete-3.1.2-py3-none-any.whl (41 kB)
+            Downloading argh-0.30.3-py3-none-any.whl (44 kB)
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.4/44.4 kB 1.0 MB/s eta 0:00:00
+            Using cached bioutils-0.5.8.post1-py3-none-any.whl (313 kB)
+            Downloading botocore-1.31.74-py3-none-any.whl (11.3 MB)
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.3/11.3 MB 5.9 MB/s eta 0:00:00
+            Using cached cfgv-3.4.0-py2.py3-none-any.whl (7.2 kB)
+            Using cached comm-0.1.4-py3-none-any.whl (6.6 kB)
+            Using cached debugpy-1.8.0-py2.py3-none-any.whl (5.0 MB)
+            Downloading identify-2.5.31-py2.py3-none-any.whl (98 kB)
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 98.9/98.9 kB 2.8 MB/s eta 0:00:00
+            Downloading ipython-8.17.2-py3-none-any.whl (808 kB)
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 808.4/808.4 kB 5.1 MB/s eta 0:00:00
+            Downloading jsonschema-4.19.2-py3-none-any.whl (83 kB)
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.6/83.6 kB 2.8 MB/s eta 0:00:00
+            Using cached jupyter_client-8.5.0-py3-none-any.whl (105 kB)
+            Downloading jupyter_core-5.5.0-py3-none-any.whl (28 kB)
+            Using cached nodeenv-1.8.0-py2.py3-none-any.whl (22 kB)
+            Using cached pycodestyle-2.11.1-py2.py3-none-any.whl (31 kB)
+            Using cached pyfaidx-0.7.2.2-py3-none-any.whl (28 kB)
+            Using cached pyflakes-3.1.0-py2.py3-none-any.whl (62 kB)
+            Using cached PyYAML-6.0.1-cp312-cp312-macosx_10_9_x86_64.whl (178 kB)
+            Using cached pyzmq-25.1.1-cp312-cp312-macosx_10_15_universal2.whl (1.9 MB)
+            Using cached s3transfer-0.7.0-py3-none-any.whl (79 kB)
+            Using cached starlette-0.27.0-py3-none-any.whl (66 kB)
+            Using cached tornado-6.3.3-cp38-abi3-macosx_10_9_x86_64.whl (423 kB)
+            Downloading traitlets-5.13.0-py3-none-any.whl (84 kB)
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 85.0/85.0 kB 2.5 MB/s eta 0:00:00
+            Using cached typing_extensions-4.8.0-py3-none-any.whl (31 kB)
+            Using cached virtualenv-20.24.6-py3-none-any.whl (3.8 MB)
+            Using cached nest_asyncio-1.5.8-py3-none-any.whl (5.3 kB)
+            Using cached numpy-1.26.1-cp312-cp312-macosx_10_9_x86_64.whl (20.3 MB)
+            Using cached packaging-23.2-py3-none-any.whl (53 kB)
+            Using cached psutil-5.9.6-cp36-abi3-macosx_10_9_x86_64.whl (246 kB)
+            Using cached psycopg-3.1.12-py3-none-any.whl (171 kB)
+            Using cached pysam-0.22.0-cp312-cp312-macosx_10_9_x86_64.whl (8.4 MB)
+            Using cached requests-2.31.0-py3-none-any.whl (62 kB)
+            Using cached simplejson-3.19.2-cp312-cp312-macosx_10_9_x86_64.whl (75 kB)
+            Using cached tqdm-4.66.1-py3-none-any.whl (78 kB)
+            Using cached certifi-2023.7.22-py3-none-any.whl (158 kB)
+            Using cached charset_normalizer-3.3.1-cp312-cp312-macosx_10_9_x86_64.whl (119 kB)
+            Using cached distlib-0.3.7-py2.py3-none-any.whl (468 kB)
+            Downloading filelock-3.13.1-py3-none-any.whl (11 kB)
+            Using cached importlib_metadata-6.8.0-py3-none-any.whl (22 kB)
+            Using cached jedi-0.19.1-py2.py3-none-any.whl (1.6 MB)
+            Using cached jsonschema_specifications-2023.7.1-py3-none-any.whl (17 kB)
+            Using cached platformdirs-3.11.0-py3-none-any.whl (17 kB)
+            Using cached prompt_toolkit-3.0.39-py3-none-any.whl (385 kB)
+            Using cached Pygments-2.16.1-py3-none-any.whl (1.2 MB)
+            Using cached referencing-0.30.2-py3-none-any.whl (25 kB)
+            Using cached rpds_py-0.10.6-cp312-cp312-macosx_10_7_x86_64.whl (331 kB)
+            Using cached urllib3-1.26.18-py2.py3-none-any.whl (143 kB)
+            Using cached fake_useragent-1.3.0-py3-none-any.whl (15 kB)
+            Using cached parse-1.19.1-py2.py3-none-any.whl (18 kB)
+            Using cached setuptools-68.2.2-py3-none-any.whl (807 kB)
+            Using cached stack_data-0.6.3-py3-none-any.whl (24 kB)
+            Using cached w3lib-2.1.2-py3-none-any.whl (21 kB)
+            Using cached asttokens-2.4.1-py2.py3-none-any.whl (27 kB)
+            Downloading executing-2.0.1-py2.py3-none-any.whl (24 kB)
+            Using cached lxml-4.9.3-cp312-cp312-macosx_11_0_universal2.whl (8.6 MB)
+            Using cached zipp-3.17.0-py3-none-any.whl (7.4 kB)
+            Downloading wcwidth-0.2.9-py2.py3-none-any.whl (102 kB)
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 102.3/102.3 kB 2.8 MB/s eta 0:00:00
+            Using cached soupsieve-2.5-py3-none-any.whl (36 kB)
+            Installing collected packages: wcwidth, snowballstemmer, pyee, pure-eval, ptyprocess, parse, fake-useragent, distlib, appnope, appdirs, zipp, websockets, w3lib, urllib3, typing-extensions, traitlets, tqdm, tornado, tabulate, sqlparse, soupsieve, sniffi
+            o, six, simplejson, setuptools, rpds-py, pyzmq, pyyaml, pysam, pygments, pyflakes, pydocstyle, pycodestyle, psycopg-binary, psutil, prompt-toolkit, platformdirs, pexpect, parso, packaging, numpy, nest-asyncio, mccabe, lxml, jmespath, idna, identify, humanfriendly, h11, filelock, executing, decorator, debugpy, cssselect, click, charset-normalizer, cfgv, certifi, canonicaljson, attrs, argh, argcomplete, annotated-types, virtualenv, uvicorn, requests, referencing, python-dateutil, pyquery, pydantic-core, psycopg, nodeenv, matplotlib-inline, jupyter-core, jedi, importlib-metadata, flake8, comm, coloredlogs, beautifulsoup4, asttokens, anyio, yoyo-migrations, starlette, stack-data, pyppeteer, pyfaidx, pydantic, pre-commit, jupyter-client, jsonschema-specifications, flake8-docstri
+            ngs, bs4, botocore, bioutils, s3transfer, requests-html, jsonschema, ipython, gffutils, ga4gh.vrsatile.pydantic, fastapi, ipykernel, ga4gh.vrs, boto3, biocommons.seqrepo, gene-normalizer
+            Successfully installed annotated-types-0.6.0 anyio-3.7.1 appdirs-1.4.4 appnope-0.1.3 argcomplete-3.1.2 argh-0.30.3 asttokens-2.4.1 attrs-23.1.0 beautifulsoup4-4.12.2 biocommons.seqrepo-0.6.5 bioutils-0.5.8.post1 boto3-1.28.74 botocore-1.31.74 bs4-0.0.1 canonicaljson-2.0.0 certifi-2023.7.22 cfgv-3.4.0 charset-normalizer-3.3.1 click-8.1.7 coloredlogs-15.0.1 comm-0.1.4 cssselect-1.2.0 debugpy-1.8.0 decorator-5.1.1 distlib-0.3.7 executing-2.0.1 fake-useragent-1.3.0 fastapi-0.104.1 filelock-3.13.1 flake8-6.1.0 flake8-docstrings-1.7.0 ga4gh.vrs-2.0.0a1 ga4gh.vrsatile.pydantic-0.1.0.dev8 gene-normalizer-0.2.10 gffutils-0.12 h11-0.14.0 humanfriendly-10.0 identify-2.5.31 idna-3.4 importlib-metadata-6.8.0 ipykernel-6.26.0 ipython-8.17.2 jedi-0.19.1 jmespath-1.0.1 jsonschema-4.19.2 jsonschema-specifications-2023.7.1 jupyter-client-8.5.0 jupyter-core-5.5.0 lxml-4.9.3 matplotlib-inline-0.1.6 mccabe-0.7.0 nest-asyncio-1.5.8 nodeenv-1.8.0
+            numpy-1.26.1 packaging-23.2 parse-1.19.1 parso-0.8.3 pexpect-4.8.0 platformdirs-3.11.0 pre-commit-3.5.0 prompt-toolkit-3.0.39 psutil-5.9.6 psycopg-3.1.12 psycopg-binary-3.1.12 ptyprocess-0.7.0 pure-eval-0.2.2 pycodestyle-2.11.1 pydantic-2.3.0 pydantic-core-2.6.3 pydocstyle-6.3.0 pyee-8.2.2 pyfaidx-0.7.2.2 pyflakes-3.1.0 pygments-2.16.1 pyppeteer-1.0.2 pyquery-2.0.0 pysam-0.22.0 python-dateutil-2.8.2 pyyaml-6.0.1 pyzmq-25.1.1 referencing-0.30.2 requests-2.31.0 requests-html-0.10.0 rpds-py-0.10.6 s3transfer-0.7.0 setuptools-68.2.2 simplejson-3.19.2 six-1.16.0 sniffio-1.3.0 snowballstemmer-2.2.0 soupsieve-2.5 sqlparse-0.4.4 stack-data-0.6.3 starlette-0.27.0 tabulate-0.9.0 tornado-6.3.3 tqdm-4.66.1 traitlets-5.13.0 typing-extensions-4.8.0 urllib3-1.26.18 uvicorn-0.23.2 virtualenv-20.24.6 w3lib-2.1.2 wcwidth-0.2.9 websockets-10.4 yoyo-migrations-8.2.0 zipp-3.17.0
 
-				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
-			});
-		</script>
-	</body>
+            [notice] A new release of pip is available: 23.2.1 -> 23.3.1
+            [notice] To update, run: pip install --upgrade pip
+          </code></pre>
+          </section>
+          <section>
+            <h3>1) Collecting dependencies</h3>
+            <pre><code data-trim data-noescape class="shell">
+            Collecting gene-normalizer[dev,etl,pg]
+              Obtaining dependency information for gene-normalizer[dev,etl,pg] from https://files.pythonhosted.org/packages/cc/a5/907e8e277dcba07384ddc327647e4b5b8a0b14deb71f2828ef779fa606a5/gene_normalizer-0.2.10-py3-none-any.whl.metadata
+              Using cached gene_normalizer-0.2.10-py3-none-any.whl.metadata (9.1 kB)
+            Collecting boto3 (from gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for boto3 from https://files.pythonhosted.org/packages/02/e0/fcc91d6641936ecdd66dba6bbc06702d84e582c744bac4f52c34be556dcb/boto3-1.28.74-py3-none-any.whl.metadata
+              Downloading boto3-1.28.74-py3-none-any.whl.metadata (6.7 kB)
+            Collecting websockets<11.0,>=10.0 (from pyppeteer>=0.0.14->requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Using cached websockets-10.4-cp312-cp312-macosx_13_0_x86_64.whl
+            Collecting lxml>=2.1 (from pyquery->requests-html->biocommons.seqrepo->gene-normalizer[dev,etl,pg])
+              Obtaining dependency information for lxml>=2.1 from https://files.pythonhosted.org/packages/c2/74/3a00052f9249b9a037a8c0cd0afac6e26cc21655ceb3d6b12221a171aeb7/lxml-4.9.3-cp312-cp312-macosx_11_0_universal2.whl.metadata
+              Using cached lxml-4.9.3-cp312-cp312-macosx_11_0_universal2.whl.metadata (3.8 kB)
+            </code></pre>
+          </section>
+          <section>
+            <h3>Package metadata and dependency resolution</h3>
+            <ul>
+              <li>Construct dependency tree</li>
+              <li>Select newest-possible packages</li>
+              <li>
+                As of
+                <a
+                  href="https://pip.pypa.io/en/stable/topics/more-dependency-resolution/"
+                  >2020</a
+                >,
+              </li>
+              <ul>
+                <li>Walks dependency tree via DFS, backtracing</li>
+                <li>Order matters - "first found wins"</li>
+                <li>If conflicts can't be resolved, gives a warning</li>
+              </ul>
+              <li>
+                <a href="https://stackoverflow.com/a/28102139/7417073"
+                  >Dependency resolution is NP-hard</a
+                >
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h3>2) Acquire source distribution</h3>
+            <pre><code data-trim data-noescape class="shell">
+              Using cached argcomplete-3.1.2-py3-none-any.whl (41 kB)
+              Downloading argh-0.30.3-py3-none-any.whl (44 kB)
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.4/44.4 kB 1.0 MB/s eta 0:00:00
+              Using cached bioutils-0.5.8.post1-py3-none-any.whl (313 kB)
+              Downloading botocore-1.31.74-py3-none-any.whl (11.3 MB)
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.3/11.3 MB 5.9 MB/s eta 0:00:00
+            </code></pre>
+          </section>
+          <section>
+            <h3>Wheel? Egg?</h3>
+            <ul>
+              <li>"Precompiled" (faster to install)</li>
+              <li><b>Eggs</b> came first</li>
+              <ul>
+                <li>Nonstandardized structure, not versioned</li>
+                <li>
+                  Basically smashes a bunch of metadata files into other
+                  metadata files
+                </li>
+              </ul>
+              <li><b>Wheels</b> are nicer. Standardized, versioned</li>
+              <ul>
+                <li>
+                  Built with specific... specifications, in a virtual
+                  environment
+                </li>
+              </ul>
+            </ul>
+          </section>
+          <section>
+            <h3>sdist</h3>
+            <ul>
+              <li>Raw source file, in a tarball</li>
+              <li>Can define specific build steps</li>
+              <li>Relatively rare these days if you're on a Mac</li>
+            </ul>
+          </section>
+          <section>
+            <h3>3) Actually install packages</h3>
+            <pre><code data-trim data-noescape class="shell">
+              Installing collected packages: wcwidth, snowballstemmer, pyee, pure-eval, ptyprocess, parse, fake-useragent, distlib, appnope, appdirs, zipp, websockets, w3lib, urllib3, typing-extensions, traitlets, tqdm, tornado, tabulate, sqlparse, soupsieve, sniffi
+              o, six, simplejson, setuptools, rpds-py, pyzmq, pyyaml, pysam, pygments, pyflakes, pydocstyle, pycodestyle, psycopg-binary, psutil, prompt-toolkit, platformdirs, pexpect, parso, packaging, numpy, nest-asyncio, mccabe, lxml, jmespath, idna, identify, humanfriendly, h11, filelock, executing, decorator, debugpy, cssselect, click, charset-normalizer, cfgv, certifi, canonicaljson, attrs, argh, argcomplete, annotated-types, virtualenv, uvicorn, requests, referencing, python-dateutil, pyquery, pydantic-core, psycopg, nodeenv, matplotlib-inline, jupyter-core, jedi, importlib-metadata, flake8, comm, coloredlogs, beautifulsoup4, asttokens, anyio, yoyo-migrations, starlette, stack-data, pyppeteer, pyfaidx, pydantic, pre-commit, jupyter-client, jsonschema-specifications, flake8-docstri
+              ngs, bs4, botocore, bioutils, s3transfer, requests-html, jsonschema, ipython, gffutils, ga4gh.vrsatile.pydantic, fastapi, ipykernel, ga4gh.vrs, boto3, biocommons.seqrepo, gene-normalizer
+              Successfully installed annotated-types-0.6.0 anyio-3.7.1 appdirs-1.4.4 appnope-0.1.3 argcomplete-3.1.2 argh-0.30.3 asttokens-2.4.1 attrs-23.1.0 beautifulsoup4-4.12.2 biocommons.seqrepo-0.6.5 bioutils-0.5.8.post1 boto3-1.28.74 botocore-1.31.74 bs4-0.0.1 canonicaljson-2.0.0 certifi-2023.7.22 cfgv-3.4.0 charset-normalizer-3.3.1 click-8.1.7 coloredlogs-15.0.1 comm-0.1.4 cssselect-1.2.0 debugpy-1.8.0 decorator-5.1.1 distlib-0.3.7 executing-2.0.1 fake-useragent-1.3.0 fastapi-0.104.1 filelock-3.13.1 flake8-6.1.0 flake8-docstrings-1.7.0 ga4gh.vrs-2.0.0a1 ga4gh.vrsatile.pydantic-0.1.0.dev8 gene-normalizer-0.2.10 gffutils-0.12 h11-0.14.0 humanfriendly-10.0 identify-2.5.31 idna-3.4 importlib-metadata-6.8.0 ipykernel-6.26.0 ipython-8.17.2 jedi-0.19.1 jmespath-1.0.1 jsonschema-4.19.2 jsonschema-specifications-2023.7.1 jupyter-client-8.5.0 jupyter-core-5.5.0 lxml-4.9.3 matplotlib-inline-0.1.6 mccabe-0.7.0 nest-asyncio-1.5.8 nodeenv-1.8.0
+              numpy-1.26.1 packaging-23.2 parse-1.19.1 parso-0.8.3 pexpect-4.8.0 platformdirs-3.11.0 pre-commit-3.5.0 prompt-toolkit-3.0.39 psutil-5.9.6 psycopg-3.1.12 psycopg-binary-3.1.12 ptyprocess-0.7.0 pure-eval-0.2.2 pycodestyle-2.11.1 pydantic-2.3.0 pydantic-core-2.6.3 pydocstyle-6.3.0 pyee-8.2.2 pyfaidx-0.7.2.2 pyflakes-3.1.0 pygments-2.16.1 pyppeteer-1.0.2 pyquery-2.0.0 pysam-0.22.0 python-dateutil-2.8.2 pyyaml-6.0.1 pyzmq-25.1.1 referencing-0.30.2 requests-2.31.0 requests-html-0.10.0 rpds-py-0.10.6 s3transfer-0.7.0 setuptools-68.2.2 simplejson-3.19.2 six-1.16.0 sniffio-1.3.0 snowballstemmer-2.2.0 soupsieve-2.5 sqlparse-0.4.4 stack-data-0.6.3 starlette-0.27.0 tabulate-0.9.0 tornado-6.3.3 tqdm-4.66.1 traitlets-5.13.0 typing-extensions-4.8.0 urllib3-1.26.18 uvicorn-0.23.2 virtualenv-20.24.6 w3lib-2.1.2 wcwidth-0.2.9 websockets-10.4 yoyo-migrations-8.2.0 zipp-3.17.0
+            </code></pre>
+          </section>
+          <section>
+            <pre><code data-trim data-noescape class="shell">
+            venv/lib/python3.12/site-packages/gene/
+            ├── __init__.py
+            ├── cli.py
+            ├── etl
+            │   ├── __init__.py
+            │   ├── base.py
+            ├── main.py
+          </code></pre>
+            <pre><code data-trim data-noescape class="shell">
+              venv/lib/python3.12/site-packages/gene_normalizer-0.2.10.dist-info
+              ├── INSTALLER
+              ├── LICENSE
+              ├── METADATA
+              ├── RECORD
+              ├── REQUESTED
+              ├── WHEEL
+              ├── entry_points.txt
+              └── top_level.txt
+            </code></pre>
+          </section>
+          <section>
+            <h3>What if a wheel is unavailable?</h3>
+            <ul>
+              <li>
+                Pre-<a href="https://peps.python.org/pep-0518/">PEP 518</a>, you
+                kinda... take a stab at it
+              </li>
+              <li>
+                Now, use <b>pyproject.toml</b> to specify a
+                <b>[build-system]</b>
+              </li>
+              <ul>
+                <li>
+                  E.g., for separate compilation steps (if C, Rust, etc is
+                  bundled in)
+                </li>
+              </ul>
+            </ul>
+          </section>
+          <section>
+            <h3>Build systems</h3>
+            <ul>
+              <li>distutils</li>
+              <li>Setuptools</li>
+              <li>Flit</li>
+              <li>Hatchling</li>
+              <li>Poetry</li>
+              <li>Source-dependent tools</li>
+            </ul>
+          </section>
+          <section>
+            <h3>4) Confirm installs</h3>
+            <pre><code data-trim data-noescape class="shell">
+              Successfully installed annotated-types-0.6.0 anyio-3.7.1 appdirs-1.4.4 appnope-0.1.3 argcomplete-3.1.2 argh-0.30.3 asttokens-2.4.1 attrs-23.1.0 beautifulsoup4-4.12.2 biocommons.seqrepo-0.6.5 bioutils-0.5.8.post1 boto3-1.28.74 botocore-1.31.74 bs4-0.0.1 canonicaljson-2.0.0 certifi-2023.7.22 cfgv-3.4.0 charset-normalizer-3.3.1 click-8.1.7 coloredlogs-15.0.1 comm-0.1.4 cssselect-1.2.0 debugpy-1.8.0 decorator-5.1.1 distlib-0.3.7 executing-2.0.1 fake-useragent-1.3.0 fastapi-0.104.1 filelock-3.13.1 flake8-6.1.0 flake8-docstrings-1.7.0 ga4gh.vrs-2.0.0a1 ga4gh.vrsatile.pydantic-0.1.0.dev8 gene-normalizer-0.2.10 gffutils-0.12 h11-0.14.0 humanfriendly-10.0 identify-2.5.31 idna-3.4 importlib-metadata-6.8.0 ipykernel-6.26.0 ipython-8.17.2 jedi-0.19.1 jmespath-1.0.1 jsonschema-4.19.2 jsonschema-specifications-2023.7.1 jupyter-client-8.5.0 jupyter-core-5.5.0 lxml-4.9.3 matplotlib-inline-0.1.6 mccabe-0.7.0 nest-asyncio-1.5.8 nodeenv-1.8.0
+              numpy-1.26.1 packaging-23.2 parse-1.19.1 parso-0.8.3 pexpect-4.8.0 platformdirs-3.11.0 pre-commit-3.5.0 prompt-toolkit-3.0.39 psutil-5.9.6 psycopg-3.1.12 psycopg-binary-3.1.12 ptyprocess-0.7.0 pure-eval-0.2.2 pycodestyle-2.11.1 pydantic-2.3.0 pydantic-core-2.6.3 pydocstyle-6.3.0 pyee-8.2.2 pyfaidx-0.7.2.2 pyflakes-3.1.0 pygments-2.16.1 pyppeteer-1.0.2 pyquery-2.0.0 pysam-0.22.0 python-dateutil-2.8.2 pyyaml-6.0.1 pyzmq-25.1.1 referencing-0.30.2 requests-2.31.0 requests-html-0.10.0 rpds-py-0.10.6 s3transfer-0.7.0 setuptools-68.2.2 simplejson-3.19.2 six-1.16.0 sniffio-1.3.0 snowballstemmer-2.2.0 soupsieve-2.5 sqlparse-0.4.4 stack-data-0.6.3 starlette-0.27.0 tabulate-0.9.0 tornado-6.3.3 tqdm-4.66.1 traitlets-5.13.0 typing-extensions-4.8.0 urllib3-1.26.18 uvicorn-0.23.2 virtualenv-20.24.6 w3lib-2.1.2 wcwidth-0.2.9 websockets-10.4 yoyo-migrations-8.2.0 zipp-3.17.0
+            </code></pre>
+          </section>
+          <section>
+            <h3>5) pip begs you to upgrade</h3>
+            <pre><code data-trim data-noescape class="shell">
+              [notice] A new release of pip is available: 23.2.1 -> 23.3.1
+              [notice] To update, run: pip install --upgrade pip
+            </code></pre>
+          </section>
+
+          <section>
+            <h3>Stepping back: organizational context</h3>
+          </section>
+          <section>
+            <ul>
+              <li><b>CPython</b> is managed by the <b>PSF</b></li>
+              <li><b>pip</b> is now part of the Python Standard Library</li>
+              <li>
+                By default, pip installs packages from the <b>PyPI</b>, which is
+                managed by the <b>PyPA</b>
+              </li>
+            </ul>
+          </section>
+          <section>
+            <ul>
+              <li>
+                PyPA is pseudo-official, but manages a bunch of overlapping
+                projects:
+              </li>
+              <ul>
+                <li>pip</li>
+                <li>virtualenv</li>
+                <li>flit</li>
+                <li>hatch</li>
+                <li>pipenv</li>
+                <li>pipx</li>
+                <li>setuptools</li>
+              </ul>
+            </ul>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h3>With that in mind,</h3>
+            <h3>Some facts and opinions on Python package setup</h3>
+          </section>
+          <section>
+            <h3>File structure</h3>
+            <p>Please contain your excitement</p>
+            <img src="images/jazzed.jpg" />
+          </section>
+          <section>
+            <pre><code data-trim data-noescape class="shell" data-line-numbers="1-10|5|6">
+              ├── Dockerfile
+              ├── LICENSE
+              ├── README.md
+              ├── docs
+              ├── pyproject.toml
+              ├── src
+              │   └── gene
+              │       ├── __init__.py
+              │       └── main.py
+              └── tests
+            </code></pre>
+          </section>
+          <section>
+            <h3>Source code goes in src/</h3>
+            <ul>
+              <li>Helps prevent some minor import errors</li>
+              <li>
+                Requires self-install during development (use editable install)
+              </li>
+            </ul>
+            <a
+              href="https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/"
+              >Reference</a
+            >
+          </section>
+          <section>
+            <h3>pyproject.toml</h3>
+            <ul>
+              <li>The packaging holy grail</li>
+              <ul>
+                <li>No more setup.py/setup.cfg!</li>
+              </ul>
+              <li>Can also store dev tool configs (Black, pytest, etc...)</li>
+            </ul>
+          </section>
+          <section>
+            <pre><code data-trim data-noescape class="toml" data-line-numbers="1-9|10-23|25|26|37-41">
+              [project]
+              name = "wags_tails"
+              version = "0.1.0"
+              authors = [
+                  {name = "Kori Kuzma"},
+                  {name = "James S Stevenson"},
+                  {name = "Alex H Wagner"}
+              ]
+              readme = "README.md"
+              classifiers = [
+                  "Development Status :: 3 - Alpha",
+                  "Framework :: Pydantic",
+                  "Framework :: Pydantic :: 2",
+                  "Intended Audience :: Science/Research",
+                  "Intended Audience :: Developers",
+                  "Topic :: Scientific/Engineering :: Bio-Informatics",
+                  "License :: OSI Approved :: MIT License",
+                  "Programming Language :: Python :: 3",
+                  "Programming Language :: Python :: 3.8",
+                  "Programming Language :: Python :: 3.9",
+                  "Programming Language :: Python :: 3.10",
+                  "Programming Language :: Python :: 3.11",
+              ]
+              requires-python = ">=3.8"
+              description = "Data acquisition tools for Wagnerds"
+              license = {file = "LICENSE"}
+              dependencies = [
+                  "requests",
+                  "tqdm",
+              ]
+
+              [project.optional-dependencies]
+              test = ["pytest>=6.0", "pytest-cov", "requests-mock"]
+
+              dev = ["pre-commit", "black", "ruff"]
+
+              [project.urls]
+              Homepage = "https://github.com/GenomicMedLab/wags-tails/"
+              Changelog = "https://github.com/GenomicMedLab/wags-tails/releases"
+              Source = "https://github.com/GenomicMedLab/wags-tails/"
+              "Bug Tracker" = "https://github.com/GenomicMedLab/wags-tails/issues"
+
+              [build-system]
+              requires = ["setuptools>=61"]
+              build-backend = "setuptools.build_meta"
+
+              [tool.setuptools.packages.find]
+              where = ["src"]
+
+              [tool.pytest.ini_options]
+              addopts = "--cov=src --cov-report term-missing"
+              testpaths = ["tests"]
+
+              [tool.coverage.run]
+              branch = true
+
+              [tool.black]
+              line-length = 88
+              extend-exclude = "^/docs/source/conf.py"
+
+              [tool.ruff]
+              src = ["src"]
+              # pycodestyle (E, W)
+              # Pyflakes (F)
+              # flake8-annotations (ANN)
+              # flake8-quotes (Q)
+              # pydocstyle (D)
+              # pep8-naming (N)
+              # isort (I)
+              select = ["E", "W", "F", "ANN", "Q", "D", "N", "I"]
+
+              fixable = ["I", "F401"]
+
+              # D203 - one-blank-line-before-class
+              # D205 - blank-line-after-summary
+              # D213 - multi-line-summary-second-line
+              # D400 - ends-in-period
+              # D415 - ends-in-punctuation
+              # ANN101 - missing-type-self
+              # ANN003 - missing-type-kwargs
+              # E501 - line-too-long
+              ignore = ["D203", "D205", "D213", "D400", "D415", "ANN101", "ANN003", "E501"]
+
+              [tool.ruff.flake8-quotes]
+              docstring-quotes = "double"
+
+              [tool.ruff.per-file-ignores]
+              # ANN001 - missing-type-function-argument
+              # ANN2 - missing-return-type
+              # ANN201 - Missing type annotation
+              # ANN102 - missing-type-cls
+              # D103 - Missing docstring in public function
+              # F821 - undefined-name
+              # F401 - unused-import
+              # I001 - Import block unsorted or unformatted
+              # N805 - invalid-first-argument-name-for-method
+              "tests/*" = ["ANN001", "ANN102", "ANN2"]
+              "*__init__.py" = ["F401"]
+              "docs/source/conf.py" = ["D100", "I001", "D103", "ANN201", "ANN001"]
+            </code></pre>
+          </section>
+          <section
+            data-background-iframe="assets/html/polars · PyPI.html"
+            data-background-interactive
+          >
+          </section>
+          <section>
+            <pre><code data-trim data-noescape class="toml" data-line-numbers="3|27-30">
+              [project]
+              name = "wags_tails"
+              version = "0.1.0"
+              authors = [
+                  {name = "Kori Kuzma"},
+                  {name = "James S Stevenson"},
+                  {name = "Alex H Wagner"}
+              ]
+              readme = "README.md"
+              classifiers = [
+                  "Development Status :: 3 - Alpha",
+                  "Framework :: Pydantic",
+                  "Framework :: Pydantic :: 2",
+                  "Intended Audience :: Science/Research",
+                  "Intended Audience :: Developers",
+                  "Topic :: Scientific/Engineering :: Bio-Informatics",
+                  "License :: OSI Approved :: MIT License",
+                  "Programming Language :: Python :: 3",
+                  "Programming Language :: Python :: 3.8",
+                  "Programming Language :: Python :: 3.9",
+                  "Programming Language :: Python :: 3.10",
+                  "Programming Language :: Python :: 3.11",
+              ]
+              requires-python = ">=3.8"
+              description = "Data acquisition tools for Wagnerds"
+              license = {file = "LICENSE"}
+              dependencies = [
+                  "requests",
+                  "tqdm",
+              ]
+
+              [project.optional-dependencies]
+              test = ["pytest>=6.0", "pytest-cov", "requests-mock"]
+              dev = ["pre-commit", "black", "ruff"]
+
+              [project.urls]
+              Homepage = "https://github.com/GenomicMedLab/wags-tails/"
+              Changelog = "https://github.com/GenomicMedLab/wags-tails/releases"
+              Source = "https://github.com/GenomicMedLab/wags-tails/"
+              "Bug Tracker" = "https://github.com/GenomicMedLab/wags-tails/issues"
+
+              [build-system]
+              requires = ["setuptools>=61"]
+              build-backend = "setuptools.build_meta"
+
+              [tool.setuptools.packages.find]
+              where = ["src"]
+
+              [tool.pytest.ini_options]
+              addopts = "--cov=src --cov-report term-missing"
+              testpaths = ["tests"]
+
+              [tool.coverage.run]
+              branch = true
+
+              [tool.black]
+              line-length = 88
+              extend-exclude = "^/docs/source/conf.py"
+
+              [tool.ruff]
+              src = ["src"]
+              # pycodestyle (E, W)
+              # Pyflakes (F)
+              # flake8-annotations (ANN)
+              # flake8-quotes (Q)
+              # pydocstyle (D)
+              # pep8-naming (N)
+              # isort (I)
+              select = ["E", "W", "F", "ANN", "Q", "D", "N", "I"]
+
+              fixable = ["I", "F401"]
+
+              # D203 - one-blank-line-before-class
+              # D205 - blank-line-after-summary
+              # D213 - multi-line-summary-second-line
+              # D400 - ends-in-period
+              # D415 - ends-in-punctuation
+              # ANN101 - missing-type-self
+              # ANN003 - missing-type-kwargs
+              # E501 - line-too-long
+              ignore = ["D203", "D205", "D213", "D400", "D415", "ANN101", "ANN003", "E501"]
+
+              [tool.ruff.flake8-quotes]
+              docstring-quotes = "double"
+
+              [tool.ruff.per-file-ignores]
+              # ANN001 - missing-type-function-argument
+              # ANN2 - missing-return-type
+              # ANN201 - Missing type annotation
+              # ANN102 - missing-type-cls
+              # D103 - Missing docstring in public function
+              # F821 - undefined-name
+              # F401 - unused-import
+              # I001 - Import block unsorted or unformatted
+              # N805 - invalid-first-argument-name-for-method
+              "tests/*" = ["ANN001", "ANN102", "ANN2"]
+              "*__init__.py" = ["F401"]
+              "docs/source/conf.py" = ["D100", "I001", "D103", "ANN201", "ANN001"]
+            </code></pre>
+          </section>
+          <section>
+            <h3>Declaring dependencies</h3>
+            <ul>
+              <li>
+                Specified in
+                <a href="https://peps.python.org/pep-0440/#version-specifiers"
+                  >PEP 440</a
+                >
+              </li>
+              <li>Constraints should be as relaxed as possible (generally)</li>
+              <li>Consider costs</li>
+            </ul>
+          </section>
+          <section>
+            <pre><code data-trim data-noescape class="toml" data-line-numbers="32-34">
+              [project]
+              name = "wags_tails"
+              version = "0.1.0"
+              authors = [
+                  {name = "Kori Kuzma"},
+                  {name = "James S Stevenson"},
+                  {name = "Alex H Wagner"}
+              ]
+              readme = "README.md"
+              classifiers = [
+                  "Development Status :: 3 - Alpha",
+                  "Framework :: Pydantic",
+                  "Framework :: Pydantic :: 2",
+                  "Intended Audience :: Science/Research",
+                  "Intended Audience :: Developers",
+                  "Topic :: Scientific/Engineering :: Bio-Informatics",
+                  "License :: OSI Approved :: MIT License",
+                  "Programming Language :: Python :: 3",
+                  "Programming Language :: Python :: 3.8",
+                  "Programming Language :: Python :: 3.9",
+                  "Programming Language :: Python :: 3.10",
+                  "Programming Language :: Python :: 3.11",
+              ]
+              requires-python = ">=3.8"
+              description = "Data acquisition tools for Wagnerds"
+              license = {file = "LICENSE"}
+              dependencies = [
+                  "requests",
+                  "tqdm",
+              ]
+
+              [project.optional-dependencies]
+              test = ["pytest>=6.0", "pytest-cov", "requests-mock"]
+              dev = ["pre-commit", "black", "ruff"]
+
+              [project.urls]
+              Homepage = "https://github.com/GenomicMedLab/wags-tails/"
+              Changelog = "https://github.com/GenomicMedLab/wags-tails/releases"
+              Source = "https://github.com/GenomicMedLab/wags-tails/"
+              "Bug Tracker" = "https://github.com/GenomicMedLab/wags-tails/issues"
+
+              [build-system]
+              requires = ["setuptools>=61"]
+              build-backend = "setuptools.build_meta"
+
+              [tool.setuptools.packages.find]
+              where = ["src"]
+
+              [tool.pytest.ini_options]
+              addopts = "--cov=src --cov-report term-missing"
+              testpaths = ["tests"]
+
+              [tool.coverage.run]
+              branch = true
+
+              [tool.black]
+              line-length = 88
+              extend-exclude = "^/docs/source/conf.py"
+
+              [tool.ruff]
+              src = ["src"]
+              # pycodestyle (E, W)
+              # Pyflakes (F)
+              # flake8-annotations (ANN)
+              # flake8-quotes (Q)
+              # pydocstyle (D)
+              # pep8-naming (N)
+              # isort (I)
+              select = ["E", "W", "F", "ANN", "Q", "D", "N", "I"]
+
+              fixable = ["I", "F401"]
+
+              # D203 - one-blank-line-before-class
+              # D205 - blank-line-after-summary
+              # D213 - multi-line-summary-second-line
+              # D400 - ends-in-period
+              # D415 - ends-in-punctuation
+              # ANN101 - missing-type-self
+              # ANN003 - missing-type-kwargs
+              # E501 - line-too-long
+              ignore = ["D203", "D205", "D213", "D400", "D415", "ANN101", "ANN003", "E501"]
+
+              [tool.ruff.flake8-quotes]
+              docstring-quotes = "double"
+
+              [tool.ruff.per-file-ignores]
+              # ANN001 - missing-type-function-argument
+              # ANN2 - missing-return-type
+              # ANN201 - Missing type annotation
+              # ANN102 - missing-type-cls
+              # D103 - Missing docstring in public function
+              # F821 - undefined-name
+              # F401 - unused-import
+              # I001 - Import block unsorted or unformatted
+              # N805 - invalid-first-argument-name-for-method
+              "tests/*" = ["ANN001", "ANN102", "ANN2"]
+              "*__init__.py" = ["F401"]
+              "docs/source/conf.py" = ["D100", "I001", "D103", "ANN201", "ANN001"]
+            </code></pre>
+          </section>
+          <section>
+            <h3>Optional dependency groups</h3>
+            <ul>
+              <li>Extra features, dev, test, docs</li>
+              <li>Brackets have to be quoted or escaped in zsh:</li>
+              <pre><code data-trim data-noescape class="bash">
+                python3 -m pip install 'polars[timezone,xlsx2csv]'
+              </code></pre>
+            </ul>
+          </section>
+          <section>
+            <pre><code data-trim data-noescape class="toml" data-line-numbers="42-44">
+              [project]
+              name = "wags_tails"
+              version = "0.1.0"
+              authors = [
+                  {name = "Kori Kuzma"},
+                  {name = "James S Stevenson"},
+                  {name = "Alex H Wagner"}
+              ]
+              readme = "README.md"
+              classifiers = [
+                  "Development Status :: 3 - Alpha",
+                  "Framework :: Pydantic",
+                  "Framework :: Pydantic :: 2",
+                  "Intended Audience :: Science/Research",
+                  "Intended Audience :: Developers",
+                  "Topic :: Scientific/Engineering :: Bio-Informatics",
+                  "License :: OSI Approved :: MIT License",
+                  "Programming Language :: Python :: 3",
+                  "Programming Language :: Python :: 3.8",
+                  "Programming Language :: Python :: 3.9",
+                  "Programming Language :: Python :: 3.10",
+                  "Programming Language :: Python :: 3.11",
+              ]
+              requires-python = ">=3.8"
+              description = "Data acquisition tools for Wagnerds"
+              license = {file = "LICENSE"}
+              dependencies = [
+                  "requests",
+                  "tqdm",
+              ]
+
+              [project.optional-dependencies]
+              test = ["pytest>=6.0", "pytest-cov", "requests-mock"]
+              dev = ["pre-commit", "black", "ruff"]
+
+              [project.urls]
+              Homepage = "https://github.com/GenomicMedLab/wags-tails/"
+              Changelog = "https://github.com/GenomicMedLab/wags-tails/releases"
+              Source = "https://github.com/GenomicMedLab/wags-tails/"
+              "Bug Tracker" = "https://github.com/GenomicMedLab/wags-tails/issues"
+
+              [build-system]
+              requires = ["setuptools>=61"]
+              build-backend = "setuptools.build_meta"
+
+              [tool.setuptools.packages.find]
+              where = ["src"]
+
+              [tool.pytest.ini_options]
+              addopts = "--cov=src --cov-report term-missing"
+              testpaths = ["tests"]
+
+              [tool.coverage.run]
+              branch = true
+
+              [tool.black]
+              line-length = 88
+              extend-exclude = "^/docs/source/conf.py"
+
+              [tool.ruff]
+              src = ["src"]
+              # pycodestyle (E, W)
+              # Pyflakes (F)
+              # flake8-annotations (ANN)
+              # flake8-quotes (Q)
+              # pydocstyle (D)
+              # pep8-naming (N)
+              # isort (I)
+              select = ["E", "W", "F", "ANN", "Q", "D", "N", "I"]
+
+              fixable = ["I", "F401"]
+
+              # D203 - one-blank-line-before-class
+              # D205 - blank-line-after-summary
+              # D213 - multi-line-summary-second-line
+              # D400 - ends-in-period
+              # D415 - ends-in-punctuation
+              # ANN101 - missing-type-self
+              # ANN003 - missing-type-kwargs
+              # E501 - line-too-long
+              ignore = ["D203", "D205", "D213", "D400", "D415", "ANN101", "ANN003", "E501"]
+
+              [tool.ruff.flake8-quotes]
+              docstring-quotes = "double"
+
+              [tool.ruff.per-file-ignores]
+              # ANN001 - missing-type-function-argument
+              # ANN2 - missing-return-type
+              # ANN201 - Missing type annotation
+              # ANN102 - missing-type-cls
+              # D103 - Missing docstring in public function
+              # F821 - undefined-name
+              # F401 - unused-import
+              # I001 - Import block unsorted or unformatted
+              # N805 - invalid-first-argument-name-for-method
+              "tests/*" = ["ANN001", "ANN102", "ANN2"]
+              "*__init__.py" = ["F401"]
+              "docs/source/conf.py" = ["D100", "I001", "D103", "ANN201", "ANN001"]
+            </code></pre>
+          </section>
+          <section data-background-image="images/build_tools.png" data-background-size="contain">
+          </section>
+          <section>
+            <pre><code data-trim data-noescape class="toml" data-line-numbers="49-98">
+              [project]
+              name = "wags_tails"
+              version = "0.1.0"
+              authors = [
+                  {name = "Kori Kuzma"},
+                  {name = "James S Stevenson"},
+                  {name = "Alex H Wagner"}
+              ]
+              readme = "README.md"
+              classifiers = [
+                  "Development Status :: 3 - Alpha",
+                  "Framework :: Pydantic",
+                  "Framework :: Pydantic :: 2",
+                  "Intended Audience :: Science/Research",
+                  "Intended Audience :: Developers",
+                  "Topic :: Scientific/Engineering :: Bio-Informatics",
+                  "License :: OSI Approved :: MIT License",
+                  "Programming Language :: Python :: 3",
+                  "Programming Language :: Python :: 3.8",
+                  "Programming Language :: Python :: 3.9",
+                  "Programming Language :: Python :: 3.10",
+                  "Programming Language :: Python :: 3.11",
+              ]
+              requires-python = ">=3.8"
+              description = "Data acquisition tools for Wagnerds"
+              license = {file = "LICENSE"}
+              dependencies = [
+                  "requests",
+                  "tqdm",
+              ]
+
+              [project.optional-dependencies]
+              test = ["pytest>=6.0", "pytest-cov", "requests-mock"]
+              dev = ["pre-commit", "black", "ruff"]
+
+              [project.urls]
+              Homepage = "https://github.com/GenomicMedLab/wags-tails/"
+              Changelog = "https://github.com/GenomicMedLab/wags-tails/releases"
+              Source = "https://github.com/GenomicMedLab/wags-tails/"
+              "Bug Tracker" = "https://github.com/GenomicMedLab/wags-tails/issues"
+
+              [build-system]
+              requires = ["setuptools>=61"]
+              build-backend = "setuptools.build_meta"
+
+              [tool.setuptools.packages.find]
+              where = ["src"]
+
+              [tool.pytest.ini_options]
+              addopts = "--cov=src --cov-report term-missing"
+              testpaths = ["tests"]
+
+              [tool.coverage.run]
+              branch = true
+
+              [tool.black]
+              line-length = 88
+              extend-exclude = "^/docs/source/conf.py"
+
+              [tool.ruff]
+              src = ["src"]
+              # pycodestyle (E, W)
+              # Pyflakes (F)
+              # flake8-annotations (ANN)
+              # flake8-quotes (Q)
+              # pydocstyle (D)
+              # pep8-naming (N)
+              # isort (I)
+              select = ["E", "W", "F", "ANN", "Q", "D", "N", "I"]
+
+              fixable = ["I", "F401"]
+
+              # D203 - one-blank-line-before-class
+              # D205 - blank-line-after-summary
+              # D213 - multi-line-summary-second-line
+              # D400 - ends-in-period
+              # D415 - ends-in-punctuation
+              # ANN101 - missing-type-self
+              # ANN003 - missing-type-kwargs
+              # E501 - line-too-long
+              ignore = ["D203", "D205", "D213", "D400", "D415", "ANN101", "ANN003", "E501"]
+
+              [tool.ruff.flake8-quotes]
+              docstring-quotes = "double"
+
+              [tool.ruff.per-file-ignores]
+              # ANN001 - missing-type-function-argument
+              # ANN2 - missing-return-type
+              # ANN201 - Missing type annotation
+              # ANN102 - missing-type-cls
+              # D103 - Missing docstring in public function
+              # F821 - undefined-name
+              # F401 - unused-import
+              # I001 - Import block unsorted or unformatted
+              # N805 - invalid-first-argument-name-for-method
+              "tests/*" = ["ANN001", "ANN102", "ANN2"]
+              "*__init__.py" = ["F401"]
+              "docs/source/conf.py" = ["D100", "I001", "D103", "ANN201", "ANN001"]
+            </code></pre>
+          </section>
+        </section>
+      </div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script>
+      // More info about initialization & config:
+      // - https://revealjs.com/initialization/
+      // - https://revealjs.com/config/
+      Reveal.initialize({
+        hash: true,
+
+        // Learn about plugins: https://revealjs.com/plugins/
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
+      });
+    </script>
+  </body>
 </html>
